@@ -1,0 +1,405 @@
+
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord | ORION-SORT{% endblock %}
+
+{% block content %}
+
+{% set total_weight = namespace(value=0) %}
+{% set total_categories = namespace(value=0) %}
+{% for item in stats %}
+    {% set total_weight.value = total_weight.value + (item.grams or 0) %}
+    {% if item.n > 0 %}
+        {% set total_categories.value = total_categories.value + 1 %}
+    {% endif %}
+{% endfor %}
+
+<section class="dashboard-hero">
+    <div class="hero-content">
+        <div class="eyebrow"><span class="eyebrow-line"></span> INTELLIGENT WASTE SORTING</div>
+        <h1>Tableau de bord <span>ORION-SORT</span></h1>
+        <p>Surveillez les détections, consultez les statistiques et suivez l'activité de votre système de tri intelligent.</p>
+    </div>
+    <div class="hero-side">
+        <div class="hero-icon">♻</div>
+        <span>ORION TECH V2</span>
+        <small>ROBOTICS SYSTEM</small>
+    </div>
+</section>
+
+<section class="status-grid">
+    <div class="status-card">
+        <span class="status-indicator online"></span>
+        <div>
+            <strong>Serveur Flask</strong>
+            <small>Page servie par Flask</small>
+        </div>
+        <span class="status-label online-text">ACTIF</span>
+    </div>
+
+    <div class="status-card">
+        <span class="status-indicator warning"></span>
+        <div>
+            <strong>Caméra / IA</strong>
+            <small>État matériel non vérifié</small>
+        </div>
+        <span class="status-label warning-text">À VÉRIFIER</span>
+    </div>
+
+    <div class="status-card">
+        <span class="status-indicator offline"></span>
+        <div>
+            <strong>Bras robotique</strong>
+            <small>Connexion matérielle</small>
+        </div>
+        <span class="status-label offline-text">DÉCONNECTÉ</span>
+    </div>
+</section>
+
+<section class="metrics-grid">
+    <article class="metric-card metric-blue">
+        <div class="metric-top">
+            <span class="metric-label">ÉVÉNEMENTS ENREGISTRÉS</span>
+            <span class="metric-icon">▤</span>
+        </div>
+        <div class="metric-value">{{ total }}</div>
+        <div class="metric-description">Détections et démonstrations</div>
+    </article>
+
+    <article class="metric-card metric-yellow">
+        <div class="metric-top">
+            <span class="metric-label">POIDS TOTAL</span>
+            <span class="metric-icon">⚖</span>
+        </div>
+        <div class="metric-value">
+            {% if total_weight.value >= 1000 %}
+                {{ "%.2f"|format(total_weight.value / 1000) }} <small>kg</small>
+            {% else %}
+                {{ "%.0f"|format(total_weight.value) }} <small>g</small>
+            {% endif %}
+        </div>
+        <div class="metric-description">Poids cumulé enregistré</div>
+    </article>
+
+    <article class="metric-card metric-green">
+        <div class="metric-top">
+            <span class="metric-label">CATÉGORIES ACTIVES</span>
+            <span class="metric-icon">◈</span>
+        </div>
+        <div class="metric-value">{{ total_categories.value }}</div>
+        <div class="metric-description">Catégories avec événements</div>
+    </article>
+
+    <article class="metric-card metric-purple">
+        <div class="metric-top">
+            <span class="metric-label">HISTORIQUE AFFICHÉ</span>
+            <span class="metric-icon">◷</span>
+        </div>
+        <div class="metric-value">{{ events|length }} <small>/ 20</small></div>
+        <div class="metric-description">Derniers événements enregistrés</div>
+    </article>
+</section>
+
+<section class="analytics-grid">
+
+    <article class="panel">
+        <div class="panel-heading">
+            <div>
+                <div class="eyebrow">ANALYSE DES DONNÉES</div>
+                <h2>Répartition des déchets</h2>
+                <p class="muted">Nombre d'événements par catégorie</p>
+            </div>
+            <span class="panel-symbol">◉</span>
+        </div>
+
+        {% set category_names = {
+            'plastic': 'Plastique',
+            'metal': 'Métal',
+            'paper': 'Papier',
+            'cardboard': 'Carton',
+            'unknown': 'Inconnu'
+        } %}
+        {% set category_colors = {
+            'plastic': 'blue',
+            'metal': 'purple',
+            'paper': 'green',
+            'cardboard': 'yellow',
+            'unknown': 'gray'
+        } %}
+
+        <div class="category-chart">
+            {% for category in ['plastic', 'metal', 'paper', 'cardboard', 'unknown'] %}
+                {% set count = namespace(value=0) %}
+                {% for item in stats %}
+                    {% if item.category == category %}
+                        {% set count.value = item.n %}
+                    {% endif %}
+                {% endfor %}
+                {% set percentage = (count.value / total * 100) if total > 0 else 0 %}
+
+                <div class="chart-row">
+                    <div class="chart-info">
+                        <span class="category-dot {{ category_colors[category] }}"></span>
+                        <span>{{ category_names[category] }}</span>
+                        <strong>{{ count.value }}</strong>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill {{ category_colors[category] }}"
+                             style="width: {{ percentage }}%"></div>
+                    </div>
+                    <span class="chart-percentage">{{ "%.1f"|format(percentage) }}%</span>
+                </div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="panel">
+        <div class="panel-heading">
+            <div>
+                <div class="eyebrow">RÉSUMÉ DU SYSTÈME</div>
+                <h2>Poids par catégorie</h2>
+                <p class="muted">Quantité totale enregistrée</p>
+            </div>
+            <span class="panel-symbol">⚖</span>
+        </div>
+
+        <div class="weight-list">
+            {% for category in ['plastic', 'metal', 'paper', 'cardboard', 'unknown'] %}
+                {% set grams = namespace(value=0) %}
+                {% for item in stats %}
+                    {% if item.category == category %}
+                        {% set grams.value = item.grams or 0 %}
+                    {% endif %}
+                {% endfor %}
+
+                <div class="weight-item">
+                    <div class="weight-category">
+                        <span class="category-dot {{ category_colors[category] }}"></span>
+                        {{ category_names[category] }}
+                    </div>
+                    <strong>
+                        {% if grams.value >= 1000 %}
+                            {{ "%.2f"|format(grams.value / 1000) }} kg
+                        {% else %}
+                            {{ "%.0f"|format(grams.value) }} g
+                        {% endif %}
+                    </strong>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="weight-total">
+            <span>POIDS TOTAL</span>
+            <strong>
+                {% if total_weight.value >= 1000 %}
+                    {{ "%.2f"|format(total_weight.value / 1000) }} kg
+                {% else %}
+                    {{ "%.0f"|format(total_weight.value) }} g
+                {% endif %}
+            </strong>
+        </div>
+    </article>
+
+</section>
+
+<section class="panel demo-panel">
+    <div class="panel-heading">
+        <div>
+            <div class="eyebrow">MODE TEST</div>
+            <h2>Ajouter une démonstration</h2>
+            <p class="muted">Enregistrez manuellement un événement de test dans la base de données.</p>
+        </div>
+        <span class="demo-badge">DEMO</span>
+    </div>
+
+    <form action="{{ url_for('add_demo') }}" method="POST" class="demo-form">
+        <div class="form-field">
+            <label for="category">Catégorie</label>
+            <select name="category" id="category" required>
+                <option value="plastic">Plastique</option>
+                <option value="metal">Métal</option>
+                <option value="paper">Papier</option>
+                <option value="cardboard">Carton</option>
+                <option value="unknown">Inconnu</option>
+            </select>
+        </div>
+
+        <div class="form-field">
+            <label for="weight_g">Poids (grammes)</label>
+            <input type="number" id="weight_g" name="weight_g"
+                   min="0" step="0.1" value="150" required>
+        </div>
+
+        <div class="form-field">
+            <label for="confidence">Confiance (%)</label>
+            <input type="number" id="confidence" name="confidence"
+                   min="0" max="1" step="0.01" value="0.95" required>
+            <small>Exemple : 0.95 = 95 %</small>
+        </div>
+
+        <button type="submit" class="primary-button">
+            <span>＋</span> Ajouter l'événement
+        </button>
+    </form>
+</section>
+
+<section class="panel history-panel">
+    <div class="panel-heading history-heading">
+        <div>
+            <div class="eyebrow">ACTIVITÉ RÉCENTE</div>
+            <h2>Historique des détections</h2>
+            <p class="muted">Les 20 derniers événements enregistrés dans ORION-SORT.</p>
+        </div>
+        <span class="history-count">{{ events|length }} événements</span>
+    </div>
+
+    <div class="history-filters">
+        <div class="search-box">
+            <span>⌕</span>
+            <input type="search" id="historySearch" placeholder="Rechercher une catégorie...">
+        </div>
+
+        <select id="categoryFilter" aria-label="Filtrer par catégorie">
+            <option value="">Toutes les catégories</option>
+            <option value="plastic">Plastique</option>
+            <option value="metal">Métal</option>
+            <option value="paper">Papier</option>
+            <option value="cardboard">Carton</option>
+            <option value="unknown">Inconnu</option>
+        </select>
+
+        <select id="sourceFilter" aria-label="Filtrer par origine">
+            <option value="">Toutes les origines</option>
+            <option value="AI">Intelligence artificielle</option>
+            <option value="DEMO">Démonstration</option>
+        </select>
+    </div>
+
+    <div class="table-container">
+        <table class="history-table" id="historyTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>CATÉGORIE</th>
+                    <th>POIDS</th>
+                    <th>CONFIANCE</th>
+                    <th>DESTINATION</th>
+                    <th>ORIGINE</th>
+                    <th>DATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                <tr class="history-row"
+                    data-category="{{ event.category|lower }}"
+                    data-source="{{ event.status|upper }}">
+                    <td class="event-id">#{{ event.id }}</td>
+
+                    <td>
+                        <span class="category-badge {{ event.category }}">
+                            {% if event.category == 'plastic' %}Plastique
+                            {% elif event.category == 'metal' %}Métal
+                            {% elif event.category == 'paper' %}Papier
+                            {% elif event.category == 'cardboard' %}Carton
+                            {% else %}Inconnu{% endif %}
+                        </span>
+                    </td>
+
+                    <td class="table-number">
+                        {% if event.weight_g is not none %}
+                            {{ "%.1f"|format(event.weight_g) }} g
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if event.confidence is not none %}
+                            <div class="confidence-cell">
+                                <span>{{ "%.0f"|format(event.confidence * 100) }}%</span>
+                                <div class="confidence-track">
+                                    <div style="width: {{ event.confidence * 100 }}%"></div>
+                                </div>
+                            </div>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td><code>{{ event.destination }}</code></td>
+
+                    <td>
+                        {% if event.status == 'AI' %}
+                            <span class="source-badge source-ai">IA</span>
+                        {% else %}
+                            <span class="source-badge source-demo">DEMO</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="date-cell">
+                        {{ event.created_at[:16].replace('T', ' ') }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="empty-state">
+                        <span>◌</span>
+                        <strong>Aucun événement enregistré</strong>
+                        <small>Les prochaines détections apparaîtront ici.</small>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div id="noFilterResults" class="empty-filter" hidden>
+            Aucun résultat ne correspond à votre recherche.
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-footer-note">
+    <span>ⓘ</span>
+    <p>ORION-SORT est actuellement en mode démonstration logicielle. Les poids affichés dépendent des valeurs réellement transmises à l'application. Le bras robotique n'est pas encore connecté.</p>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const search = document.getElementById("historySearch");
+    const category = document.getElementById("categoryFilter");
+    const source = document.getElementById("sourceFilter");
+    const rows = Array.from(document.querySelectorAll(".history-row"));
+    const noResults = document.getElementById("noFilterResults");
+
+    function filterHistory() {
+        const searchValue = search.value.toLowerCase().trim();
+        const categoryValue = category.value;
+        const sourceValue = source.value;
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+            const rowCategory = row.dataset.category;
+            const rowSource = row.dataset.source;
+            const rowText = row.textContent.toLowerCase();
+
+            const matchesSearch = rowText.includes(searchValue);
+            const matchesCategory = !categoryValue || rowCategory === categoryValue;
+            const matchesSource = !sourceValue || rowSource === sourceValue;
+
+            const visible = matchesSearch && matchesCategory && matchesSource;
+            row.hidden = !visible;
+
+            if (visible) visibleCount++;
+        });
+
+        noResults.hidden = visibleCount !== 0 || rows.length === 0;
+    }
+
+    search.addEventListener("input", filterHistory);
+    category.addEventListener("change", filterHistory);
+    source.addEventListener("change", filterHistory);
+});
+</script>
+{% endblock %}

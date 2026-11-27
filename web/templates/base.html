@@ -1,0 +1,53 @@
+
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="theme-color" content="#0c1222">
+    <meta name="description" content="ORION-Sort - Système intelligent de tri des déchets">
+
+    <title>{% block title %}ORION-Sort | ORION TECH V2{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <strong>♻ ORION-Sort</strong>
+            <span>ORION TECH V2 · ROBOTICS SYSTEM</span>
+        </div>
+
+        <div class="system-status">
+            <span class="status-dot"></span>
+            MODE DÉMONSTRATION
+        </div>
+    </header>
+
+    <main>
+
+        {% with messages = get_flashed_messages() %}
+            {% for m in messages %}
+                <p class="notice">{{ m }}</p>
+            {% endfor %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+    </main>
+
+    <footer>
+        <strong>ORION TECH V2</strong>
+        <p>Prototype préparatoire — aucun matériel connecté</p>
+        <small>Robotique · Intelligence artificielle · Supervision</small>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

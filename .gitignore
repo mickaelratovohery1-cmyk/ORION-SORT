@@ -1,0 +1,37 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.pytest_cache/
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+intelligence_artificielle/dataset/raw/*
+!intelligence_artificielle/dataset/raw/**/.gitkeep
+intelligence_artificielle/dataset/processed/*
+!intelligence_artificielle/dataset/processed/.gitkeep
+intelligence_artificielle/models/*
+!intelligence_artificielle/models/.gitkeep
+web/instance/
+web/exports/*
+!web/exports/.gitkeep
+# Dossiers lourds (Dataset et modèles)
+intelligence_artificielle/dataset/
+intelligence_artificielle/runs/
+*.pt
+*.onnx
+*.h5
+
+# Fichiers de cache Python
+__pycache__/
+*.pyc
+
+# Base de données locale
+*.db
+
+# Fichiers système
+.DS_Store
+Thumbs.db
