@@ -1,0 +1,16 @@
+Categorie,Composant,Quantite,Reference_a_confirmer,Usage
+Commande,ESP32 DevKit,1,ESP32 DevKit,Contrôleur
+Commande,PCA9685,1,PCA9685 16 canaux,Driver PWM servos
+Actionneur,Servomoteur,4,MG996R/SG90 selon sujet et disponibilité,Axes + pince
+Capteur,Capteur présence,1,IR ou ultrason,Détection objet
+Capteur,HC-SR04,1,HC-SR04,Distance
+Mesure,Cellule de charge,1,1 kg,Poids
+Mesure,HX711,1,HX711,Amplificateur cellule
+Signal,LED RGB,1,Module ou LED RGB,État
+Signal,Buzzer,1,Module/buzzer,Alarme
+Commande,Bouton,1,Bouton poussoir,STOP logiciel
+Alimentation,Alimentation servo,1,5 V / 3 A minimum selon sujet,Puissance servos
+Protection,Fusible + porte-fusible,1,À dimensionner,Protection
+Câblage,Fils Dupont,1 lot,Selon montage,Connexions
+Câblage,Plaque d'essai,1,Selon prototype,Prototype
+Mesure,Multimètre,1,Selon laboratoire,Validation électrique
